@@ -1,9 +1,17 @@
 import requests
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+RARIBLE_API_KEY = os.getenv("RARIBLE_API_KEY")
+
 RARIBLE_API_URL="https://api.rarible.org/v0.1/data/collections/POLYGON:0x0ad52bfd0ddd09f581f0f790fe4f7369e9097712/floorPrice/?currency=MATIC"
 
 def get():
-    response = requests.get(RARIBLE_API_URL)
+    headers = {"X-API-KEY": RARIBLE_API_KEY}
+    response = requests.get(RARIBLE_API_URL, headers=headers)
     data = response.json()
 
     previous = data["historicalValues"][-2]
@@ -18,6 +26,9 @@ def get():
         )
     elif data["currentValue"] == previous:
         bot_message = f"📊 Актуальный флор: {data['currentValue']} MATIC)"
+        bot_speach = (
+            f"Актуальный флор: {data['currentValue']} MATIC."
+        )
     else:
         bot_message = (
             f"📉 Актуальный флор: {data['currentValue']} MATIC (-{change_percent}%)"
@@ -32,3 +43,6 @@ def get():
     bot_speach += f"\nПозавчера: {data['historicalValues'][-3]} MATIC"
 
     return bot_message, bot_speach
+
+if __name__ == "__main__":
+    print(get())
